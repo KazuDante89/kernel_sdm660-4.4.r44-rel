@@ -1952,7 +1952,7 @@ static void sdhci_do_set_ios(struct sdhci_host *host, struct mmc_ios *ios)
 				pr_err("%s: enabling controller clock: failed: %d\n",
 				       mmc_hostname(host->mmc), ret);
 			} else {
-				sdhci_set_power(host, ios->power_mode, ios->vdd);
+				__sdhci_set_power(host, ios->power_mode, ios->vdd);
 			}
 		}
 	}
