@@ -28,25 +28,20 @@
 #include <asm-generic/mm_hooks.h>
 #include <asm/cputype.h>
 #include <asm/pgtable.h>
-#include <linux/msm_rtb.h>
 #include <asm/tlbflush.h>
 
 #ifdef CONFIG_PID_IN_CONTEXTIDR
 static inline void contextidr_thread_switch(struct task_struct *next)
 {
-	pid_t pid = task_pid_nr(next);
 	asm(
 	"	msr	contextidr_el1, %0\n"
 	"	isb"
 	:
-	: "r" (pid));
-	uncached_logk(LOGK_CTXID, (void *)(u64)pid);
-
+	: "r" (task_pid_nr(next)));
 }
 #else
 static inline void contextidr_thread_switch(struct task_struct *next)
 {
-	uncached_logk(LOGK_CTXID, (void *)(u64)task_pid_nr(next));
 }
 #endif
 
@@ -186,7 +181,7 @@ static inline void update_saved_ttbr0(struct task_struct *tsk,
 	else
 		ttbr = virt_to_phys(mm->pgd) | ASID(mm) << 48;
 
-	WRITE_ONCE(task_thread_info(tsk)->ttbr0, ttbr);
+	task_thread_info(tsk)->ttbr0 = ttbr;
 }
 #else
 static inline void update_saved_ttbr0(struct task_struct *tsk,
